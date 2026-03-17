@@ -1,37 +1,50 @@
-version: "3.8"
+version: '3.8'
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: sendportal-app
     restart: unless-stopped
     ports:
       - "${APP_PORT:-8080}:80"
-    volumes:
-      - .:/var/www/html
-      - /var/www/html/vendor
     environment:
-      - APP_ENV=${APP_ENV:-local}
-      - APP_DEBUG=${APP_DEBUG:-true}
+      - APP_ENV=${APP_ENV:-production}
+      - APP_KEY=${APP_KEY}
+      - APP_DEBUG=${APP_DEBUG:-false}
+      - APP_URL=${APP_URL:-http://localhost:8080}
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-sendportal}
+      - DB_USERNAME=${DB_USERNAME:-sendportal}
+      - DB_PASSWORD=${DB_PASSWORD:-secret}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CACHE_DRIVER=redis
+      - QUEUE_CONNECTION=redis
+      - SESSION_DRIVER=redis
     depends_on:
       mysql:
         condition: service_healthy
       redis:
         condition: service_healthy
+    volumes:
+      - storage:/var/www/html/storage
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      test: ["CMD", "curl", "-f", "http://localhost/login"]
       interval: 30s
       timeout: 5s
+      start_period: 30s
       retries: 3
-    networks:
-      - sendportal
 
   mysql:
     image: mysql:8.0
     container_name: sendportal-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootsecret}
       MYSQL_DATABASE: ${DB_DATABASE:-sendportal}
       MYSQL_USER: ${DB_USERNAME:-sendportal}
       MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
@@ -43,9 +56,8 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
+      start_period: 30s
       retries: 5
-    networks:
-      - sendportal
 
   redis:
     image: redis:7-alpine
@@ -59,14 +71,10 @@ services:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
-      retries: 5
-    networks:
-      - sendportal
+      start_period: 5s
+      retries: 3
 
 volumes:
   mysql_data:
   redis_data:
-
-networks:
-  sendportal:
-    driver: bridge
+  storage:

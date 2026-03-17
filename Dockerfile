@@ -1,39 +1,51 @@
-FROM php:8.2-fpm
+FROM php:8.2-apache
 
-# システム依存パッケージ
+# システム依存パッケージのインストール
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip libpng-dev libjpeg-dev libfreetype6-dev \
-    libonig-dev libxml2-dev libzip-dev nginx supervisor \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    supervisor \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
-    && pecl install redis && docker-php-ext-enable redis \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+# Apache mod_rewrite を有効化
+RUN a2enmod rewrite
 
-# Nginx設定
-COPY docker/nginx.conf /etc/nginx/sites-available/default
+# Apache のドキュメントルートを設定
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
+    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Supervisor設定
+# Composer のインストール
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# アプリケーションのコピー
+WORKDIR /var/www/html
+COPY . .
+
+# 依存関係のインストール
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# ストレージとキャッシュのパーミッション設定
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Supervisor 設定（Horizon用）
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-WORKDIR /var/www/html
-
-# Composerの依存関係を先にコピー（キャッシュ活用）
-COPY composer.json composer.lock* ./
-RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
-
-# アプリケーションコード
-COPY . .
-RUN composer dump-autoload --optimize
-
-# パーミッション設定
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# ヘルスチェック
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost/login || exit 1
 
 EXPOSE 80
-
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
-    CMD curl -f http://localhost/health || exit 1
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
