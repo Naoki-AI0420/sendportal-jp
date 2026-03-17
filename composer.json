@@ -6,11 +6,12 @@
     "require": {
         "php": "^8.2|^8.3",
         "guzzlehttp/guzzle": "^7.8.1",
+        "laravel/cashier": "^16.4",
         "laravel/framework": "^11.0",
         "laravel/horizon": "^5.24",
         "laravel/tinker": "^2.9",
-        "livewire/livewire": "^3.4",
         "laravel/ui": "^4.5",
+        "livewire/livewire": "^3.4",
         "mettle/sendportal-core": "^3.0"
     },
     "require-dev": {

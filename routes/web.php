@@ -1,12 +1,27 @@
 <?php
 
 use App\Http\Controllers\Auth\ApiTokenController;
+use App\Http\Controllers\LpController;
+use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Middleware\OwnsCurrentWorkspace;
+use App\Http\Middleware\RequireSubscription;
 use App\Http\Middleware\RequireWorkspace;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Sendportal\Base\Facades\Sendportal;
+
+// LP（ランディングページ）
+Route::get('lp', [LpController::class, 'index'])->name('lp');
+
+// プラン・課金
+Route::get('pricing', [SubscriptionController::class, 'pricing'])->name('pricing');
+Route::post('subscribe/{plan}', [SubscriptionController::class, 'subscribe'])->middleware('auth')->name('subscribe');
+Route::get('billing', [SubscriptionController::class, 'billing'])->middleware('auth')->name('billing');
+
+// Stripe Webhook
+Route::post('stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])->name('stripe.webhook');
 
 Auth::routes(
     [
@@ -105,7 +120,7 @@ Route::namespace('Workspaces')->middleware(
     }
 );
 
-Route::middleware(['auth', 'verified', RequireWorkspace::class])->group(
+Route::middleware(['auth', 'verified', RequireWorkspace::class, RequireSubscription::class])->group(
     static function () {
         Sendportal::webRoutes();
     }
