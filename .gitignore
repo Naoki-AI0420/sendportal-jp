@@ -19,3 +19,6 @@ resources/views/vendor/
 composer.lock
 phpunit.xml
 
+
+vendor/
+node_modules/
