@@ -60,6 +60,9 @@
                     </div>
                     @endif
                     <h2 class="text-lg font-bold text-gray-900">{{ $plan['name'] }}</h2>
+                    @if (!empty($plan['description']))
+                    <p class="mt-2 text-sm text-gray-500">{{ $plan['description'] }}</p>
+                    @endif
                     <div class="mt-4 flex items-baseline">
                         <span class="text-4xl font-bold text-gray-900">&yen;{{ number_format($plan['price']) }}</span>
                         <span class="ml-1 text-gray-500">/月</span>
@@ -67,11 +70,16 @@
                     <p class="mt-2 text-sm text-gray-500">
                         購読者 {{ number_format($plan['subscribers_limit']) }}人 / 月{{ number_format($plan['emails_limit']) }}通
                     </p>
-                    <ul class="mt-8 space-y-3 flex-1">
+                    <ul class="mt-8 space-y-4 flex-1">
                         @foreach ($plan['features'] as $feature)
                         <li class="flex items-start gap-3">
                             <svg class="w-5 h-5 text-primary-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                            <span class="text-gray-600">{{ $feature }}</span>
+                            <div>
+                                <span class="text-gray-900 font-medium">{{ is_array($feature) ? $feature['title'] : $feature }}</span>
+                                @if (is_array($feature) && !empty($feature['desc']))
+                                <p class="text-xs text-gray-400 mt-0.5 leading-relaxed">{{ $feature['desc'] }}</p>
+                                @endif
+                            </div>
                         </li>
                         @endforeach
                     </ul>
