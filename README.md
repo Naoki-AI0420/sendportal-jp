@@ -1,33 +1,70 @@
-<p align="center"><img src="https://sendportal.io/img/sendportal.png" width="250"></p>
+# SendPortal 日本語版
 
+オープンソースのメールマガジン管理SaaS [SendPortal](https://github.com/mettle/sendportal) の日本語対応版です。
 
-Modern open-source self-hosted email marketing.
+## 機能一覧
 
-- [Website](https://sendportal.io)
-- [Documentation](https://sendportal.io/docs)
+- **キャンペーン管理** - メールキャンペーンの作成・スケジュール配信・レポート
+- **購読者管理** - CSVインポート/エクスポート・タグによるセグメント分け
+- **テンプレート** - 再利用可能なメールテンプレート
+- **分析レポート** - 開封率・クリック率・バウンス率の追跡
+- **オートメーション** - 自動メール配信ワークフロー
+- **ワークスペース** - チーム・プロジェクト単位での管理
+- **API** - REST APIによる外部連携
 
-## Introduction
+## 対応メールサービス
 
-The core functionality of SendPortal is contained within the [SendPortal Core](https://github.com/mettle/sendportal-core) package. If you would like to add SendPortal to an existing application that already handles user authentication, you only require [SendPortal Core](https://github.com/mettle/sendportal-core).
+- Amazon SES
+- Mailgun
+- Mailjet
+- Postmark
+- SendGrid
+- SMTP
 
-## Features
-SendPortal includes subscriber and list management, email campaigns, message tracking, reports and multiple workspaces/domains in a modern, flexible and scalable application.
+## クイックスタート（Docker）
 
-SendPortal integrates with [Amazon SES](https://aws.amazon.com/ses), [Postmark](https://postmarkapp.com), [Sendgrid](https://sendgrid.com), [Mailgun](https://www.mailgun.com/) and [Mailjet](https://www.mailjet.com).
+```bash
+# リポジトリをクローン
+git clone https://github.com/Naoki-AI0420/sendportal-jp.git
+cd sendportal-jp
 
-The [SendPortal](https://github.com/mettle/sendportal) application acts as a wrapper around SendPortal Core. This will allow you to run your own copy of SendPortal as a stand-alone application, including user authentication and multiple workspaces.
+# 環境設定ファイルをコピー
+cp .env.example .env
 
-## Installation
+# Docker起動
+docker compose up -d
 
-If you would like to install SendPortal as a stand-alone application, please follow the [installation guide](https://sendportal.io/docs/v2/getting-started/installation).
+# 初期セットアップ（初回のみ）
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate
+docker compose exec app php artisan storage:link
+```
 
-If you would like to add SendPortal to an existing application, please follow the [package installation guide](https://sendportal.io/docs/v2/getting-started/package-installation).
+http://localhost:8080 にアクセスしてください。
 
-## Requirements
-SendPortal V3 requires:
+## 手動セットアップ
+
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+# .env のDB設定を編集
+php artisan migrate
+php artisan storage:link
+php artisan serve
+```
+
+## 必要要件
 
 - PHP 8.2+
-- Laravel 10+
-- MySQL (≥ 5.7) or PostgreSQL (≥ 9.4)
+- MySQL 8.0+
+- Redis（Horizon用）
+- Composer 2
 
-If you are on an earlier version of PHP (7.3+) or Laravel (8+), please use [SendPortal V2](https://github.com/mettle/sendportal/releases/tag/v2.0.4)
+## ライセンス
+
+[MIT License](LICENSE.md)
+
+## 元プロジェクト
+
+[mettle/sendportal](https://github.com/mettle/sendportal)
