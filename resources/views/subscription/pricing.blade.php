@@ -28,7 +28,7 @@
                 <a href="{{ route('lp') }}" class="text-xl font-bold text-primary-600">メルマガ管理</a>
                 <div class="flex items-center gap-4">
                     @auth
-                        <a href="{{ url('/home') }}" class="text-sm text-gray-600 hover:text-primary-600">ダッシュボード</a>
+                        <a href="{{ url('/') }}" class="text-sm text-gray-600 hover:text-primary-600">ダッシュボード</a>
                         <a href="{{ route('billing') }}" class="text-sm text-gray-600 hover:text-primary-600">請求管理</a>
                     @else
                         <a href="{{ route('login') }}" class="text-sm text-gray-600 hover:text-primary-600">ログイン</a>
@@ -98,7 +98,7 @@
                                 </form>
                             @endif
                         @else
-                            <a href="{{ route('register') }}" class="block w-full py-3 px-6 rounded-xl font-medium text-center transition {{ $key === 'standard' ? 'bg-primary-600 text-white hover:bg-primary-700 shadow-lg shadow-primary-600/25' : 'bg-gray-100 text-gray-900 hover:bg-gray-200' }}">
+                            <a href="{{ route('login') }}" class="block w-full py-3 px-6 rounded-xl font-medium text-center transition {{ $key === 'standard' ? 'bg-primary-600 text-white hover:bg-primary-700 shadow-lg shadow-primary-600/25' : 'bg-gray-100 text-gray-900 hover:bg-gray-200' }}">
                                 無料で始める
                             </a>
                         @endauth

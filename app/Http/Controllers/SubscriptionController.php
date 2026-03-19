@@ -34,13 +34,20 @@ class SubscriptionController extends Controller
 
         return $user->newSubscription('default', $priceId)
             ->checkout([
-                'success_url' => route('home') . '?checkout=success',
+                'success_url' => route('sendportal.dashboard') . '?checkout=success',
                 'cancel_url' => route('pricing') . '?checkout=cancel',
             ]);
     }
 
     public function billing(Request $request)
     {
-        return $request->user()->redirectToBillingPortal(route('home'));
+        $user = $request->user();
+
+        if (! $user->hasStripeId()) {
+            return redirect()->route('pricing')
+                ->with('info', 'まずプランを選択してください。');
+        }
+
+        return $user->redirectToBillingPortal(route('sendportal.dashboard'));
     }
 }

@@ -9,28 +9,18 @@ services:
     restart: unless-stopped
     ports:
       - "${APP_PORT:-8080}:80"
+    env_file:
+      - .env
     environment:
-      - APP_ENV=${APP_ENV:-production}
-      - APP_KEY=${APP_KEY}
-      - APP_DEBUG=${APP_DEBUG:-false}
-      - APP_URL=${APP_URL:-http://localhost:8080}
-      - DB_CONNECTION=mysql
       - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_DATABASE=${DB_DATABASE:-sendportal}
-      - DB_USERNAME=${DB_USERNAME:-sendportal}
-      - DB_PASSWORD=${DB_PASSWORD:-secret}
       - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - CACHE_DRIVER=redis
-      - QUEUE_CONNECTION=redis
-      - SESSION_DRIVER=redis
     depends_on:
       mysql:
         condition: service_healthy
       redis:
         condition: service_healthy
     volumes:
+      - .:/var/www/html
       - storage:/var/www/html/storage
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/login"]

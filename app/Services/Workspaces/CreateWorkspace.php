@@ -41,6 +41,11 @@ class CreateWorkspace
 
             $this->addWorkspaceMember->handle($workspace, $user, $role);
 
+            if (! $user->current_workspace_id) {
+                $user->current_workspace_id = $workspace->id;
+                $user->save();
+            }
+
             return $workspace;
         });
     }

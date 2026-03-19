@@ -12,6 +12,10 @@ class RequireSubscription
 {
     public function handle(Request $request, Closure $next): Response
     {
+        if (config('app.env') === 'local') {
+            return $next($request);
+        }
+
         $user = $request->user();
 
         if (! $user || ! $user->subscribed('default')) {

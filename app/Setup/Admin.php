@@ -42,6 +42,9 @@ class Admin implements StepInterface
             'role' => Workspace::ROLE_OWNER,
         ]);
 
+        $user->current_workspace_id = $workspace->id;
+        $user->save();
+
         return true;
     }
 

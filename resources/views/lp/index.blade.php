@@ -64,7 +64,7 @@
                     <a href="#features" class="text-sm text-gray-600 hover:text-primary-600 hidden sm:inline">特徴</a>
                     <a href="#faq" class="text-sm text-gray-600 hover:text-primary-600 hidden sm:inline">FAQ</a>
                     @auth
-                        <a href="{{ url('/home') }}" class="text-sm bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition">ダッシュボード</a>
+                        <a href="{{ url('/') }}" class="text-sm bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition">ダッシュボード</a>
                     @else
                         <a href="{{ route('login') }}" class="text-sm text-gray-600 hover:text-primary-600">ログイン</a>
                         <a href="{{ route('pricing') }}" class="text-sm bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition">無料で始める</a>
@@ -156,7 +156,7 @@
                         @foreach ($plan['features'] as $feature)
                         <li class="flex items-start gap-3">
                             <svg class="w-5 h-5 text-primary-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                            <span class="text-gray-600">{{ $feature }}</span>
+                            <span class="text-gray-600">{{ $feature['title'] }}</span>
                         </li>
                         @endforeach
                     </ul>
@@ -169,8 +169,8 @@
                                 </button>
                             </form>
                         @else
-                            <a href="{{ route('register') }}" class="block w-full py-3 px-6 rounded-xl font-medium text-center transition {{ $key === 'standard' ? 'bg-primary-600 text-white hover:bg-primary-700 shadow-lg shadow-primary-600/25' : 'bg-gray-100 text-gray-900 hover:bg-gray-200' }}">
-                                無料で始める
+                            <a href="{{ route('login') }}" class="block w-full py-3 px-6 rounded-xl font-medium text-center transition {{ $key === 'standard' ? 'bg-primary-600 text-white hover:bg-primary-700 shadow-lg shadow-primary-600/25' : 'bg-gray-100 text-gray-900 hover:bg-gray-200' }}">
+                                ログインして始める
                             </a>
                         @endauth
                     </div>

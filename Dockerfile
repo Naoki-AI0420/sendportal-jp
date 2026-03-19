@@ -1,4 +1,4 @@
-FROM php:8.2-apache
+FROM php:8.4-apache
 
 # システム依存パッケージのインストール
 RUN apt-get update && apt-get install -y \
@@ -11,7 +11,8 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     supervisor \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
+    && apt-get install -y libgmp-dev \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip gmp \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && apt-get clean \
@@ -39,13 +40,20 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Sendportal アセット公開
+RUN php artisan vendor:publish --provider='Sendportal\Base\SendportalBaseServiceProvider' --force --quiet 2>/dev/null || true
+
 # Supervisor 設定（Horizon用）
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# エントリポイント
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 # ヘルスチェック
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
     CMD curl -f http://localhost/login || exit 1
 
 EXPOSE 80
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
